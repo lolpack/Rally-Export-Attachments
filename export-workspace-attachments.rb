@@ -39,7 +39,7 @@
 #		<type> - is the type of file, either "METADATA" or "DATA".
 #		<ext> - is the file extension found on the attachment. Used on
 #			the DATA <type> file only.
-#       
+#
 # API DOCS:
 #       http://dev.developer.rallydev.com/developer/ruby-toolkit-rally-rest-api-json
 #       https://github.com/RallyTools/RallyRestToolkitForRuby
@@ -55,10 +55,10 @@
 # ------------------------------------------------------------------------------
 
 $my_base_url	       = "https://rally1.rallydev.com/slm"
-$my_username	       = "user@company.com"
-$my_password	       = "topsecret"
+$my_username	       = ""
+$my_password	       = ""
 $my_api_version        = "1.43"
-$my_workspace_oid      = "12345678910"
+$my_workspace_oid      = ""
 $my_vars	       = "./my_vars.rb"
 
 
@@ -175,7 +175,7 @@ end
 def get_open_project_count (this_workspace)
 	query			= RallyAPI::RallyQuery.new()
         query.workspace         = this_workspace
-	query.project		= nil
+	query.project		= {"_ref" => "https://rally1.rallydev.com/slm/webservice/v2.0/project/#{$my_project_oid}" }
 	query.project_scope_up	= true
 	query.project_scope_down= true
 	query.type		= :project
@@ -185,7 +185,8 @@ def get_open_project_count (this_workspace)
 	begin #{
         	all_open_projects	= @rally.find(query)
 		open_project_count	= all_open_projects.total_result_count
-	rescue Exception => e  
+
+	rescue Exception => e
 		open_project_count	= 0
 	end #}
 
@@ -220,8 +221,10 @@ def get_all_workspace_attachments (this_workspace)
         query.fetch	= query.fetch + ",TestSet"
         query.fetch	= query.fetch + ",User"
 
+        query.project		= {"_ref" => "https://rally1.rallydev.com/slm/webservice/v2.0/project/#{$my_project_oid}" }
         all_workspace_attachments	= @rally.find(query)
 
+  # puts all_workspace_attachments
 	return (all_workspace_attachments)
 end
 
@@ -402,7 +405,7 @@ type_hash = Hash.new (0)
 		else
 			extension = "." + this_workspace_attachment.Name.split(".")[-1]
 			file_data = File.new(file_name_data + extension,"wb")
-			this_content = this_workspace_attachment.Content.read 
+			this_content = this_workspace_attachment.Content.read
 			file_data.syswrite(Base64.decode64(this_content.Content))
 		end
 		type_hash[extension.downcase] += 1
